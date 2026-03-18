@@ -1,0 +1,39 @@
+# Xcode
+build/
+DerivedData/
+*.xcuserstate
+*.xcworkspace/xcuserdata/
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+xcuserdata/
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Package.resolved
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# App signing
+*.mobileprovision
+*.provisionprofile
+
+# Archives
+*.xcarchive
+*.ipa
+
+# IDE
+*.swp
+*~
+.idea/
+.vscode/
+
+# Environment
+.env
+.env.local
