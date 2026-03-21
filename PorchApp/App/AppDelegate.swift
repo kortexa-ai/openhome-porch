@@ -14,6 +14,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
 
+        // Set app icon for dock/task switcher (needed when running via swift run)
+        if let icon = loadAppIcon() {
+            NSApp.applicationIconImage = icon
+        }
+
         setupStatusItem()
         setupPopover()
 
@@ -84,6 +89,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         window.isReleasedWhenClosed = false
         window.makeKeyAndOrderFront(nil)
 
+        if let icon = loadAppIcon() { NSApp.applicationIconImage = icon }
         NSApp.setActivationPolicy(.regular)
         NSApp.activate(ignoringOtherApps: true)
 
@@ -112,11 +118,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let window = NSWindow(contentViewController: hostingController)
         window.title = "About Porch"
         window.styleMask = [.titled, .closable]
-        window.setContentSize(NSSize(width: 300, height: 230))
+        window.setContentSize(NSSize(width: 300, height: 260))
         window.center()
         window.isReleasedWhenClosed = false
         window.makeKeyAndOrderFront(nil)
 
+        if let icon = loadAppIcon() { NSApp.applicationIconImage = icon }
         NSApp.setActivationPolicy(.regular)
         NSApp.activate(ignoringOtherApps: true)
 
@@ -134,5 +141,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func quit() {
         connectionManager.disconnect()
         NSApp.terminate(nil)
+    }
+
+    private func loadAppIcon() -> NSImage? {
+        let candidates = [
+            Bundle.main.bundlePath + "/Contents/Resources/appIcon.png",
+            URL(fileURLWithPath: Bundle.main.executablePath ?? "")
+                .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+                .appendingPathComponent("assets/appIcon.png").path,
+            URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+                .appendingPathComponent("assets/appIcon.png").path,
+        ]
+        for path in candidates {
+            if let img = NSImage(contentsOfFile: path) { return img }
+        }
+        return nil
     }
 }

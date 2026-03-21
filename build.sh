@@ -17,6 +17,14 @@ mkdir -p "${APP_BUNDLE}/Contents/Resources"
 # Copy binary
 cp "${BUILD_DIR}/${APP_NAME}" "${APP_BUNDLE}/Contents/MacOS/"
 
+# Copy assets
+if [ -f assets/appIcon.icns ]; then
+    cp assets/appIcon.icns "${APP_BUNDLE}/Contents/Resources/AppIcon.icns"
+fi
+if [ -f assets/appIcon.png ]; then
+    cp assets/appIcon.png "${APP_BUNDLE}/Contents/Resources/appIcon.png"
+fi
+
 # Info.plist
 cat > "${APP_BUNDLE}/Contents/Info.plist" << 'EOF'
 <?xml version="1.0" encoding="UTF-8"?>
@@ -39,6 +47,8 @@ cat > "${APP_BUNDLE}/Contents/Info.plist" << 'EOF'
     <string>APPL</string>
     <key>LSUIElement</key>
     <true/>
+    <key>CFBundleIconFile</key>
+    <string>AppIcon</string>
     <key>NSHighResolutionCapable</key>
     <true/>
 </dict>

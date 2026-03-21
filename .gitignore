@@ -37,3 +37,9 @@ Package.resolved
 # Environment
 .env
 .env.local
+
+# Window (Electrobun)
+Window/node_modules/
+Window/build/
+Window/dist/
+Window/bun.lock

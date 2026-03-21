@@ -6,9 +6,17 @@ struct AboutView: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            Image(systemName: "house.circle.fill")
-                .font(.system(size: 48))
-                .foregroundStyle(.primary)
+            if let icon = loadIcon() {
+                Image(nsImage: icon)
+                    .resizable()
+                    .frame(width: 64, height: 64)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .shadow(radius: 4)
+            } else {
+                Image(systemName: "house.circle.fill")
+                    .font(.system(size: 48))
+                    .foregroundStyle(.primary)
+            }
 
             Text("Porch")
                 .font(.title.bold())
@@ -52,7 +60,7 @@ struct AboutView: View {
             }
         }
         .padding(24)
-        .frame(width: 300, height: 230)
+        .frame(width: 300, height: 260)
     }
 
     private var apiKeyStatusText: String {
@@ -67,5 +75,20 @@ struct AboutView: View {
         case .none:
             return "API key configured"
         }
+    }
+
+    private func loadIcon() -> NSImage? {
+        let candidates = [
+            Bundle.main.bundlePath + "/Contents/Resources/appIcon.png",
+            URL(fileURLWithPath: Bundle.main.executablePath ?? "")
+                .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+                .appendingPathComponent("assets/appIcon.png").path,
+            URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+                .appendingPathComponent("assets/appIcon.png").path,
+        ]
+        for path in candidates {
+            if let img = NSImage(contentsOfFile: path) { return img }
+        }
+        return nil
     }
 }

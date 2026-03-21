@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>EnvironmentVariables</key>
+	<dict>
+		<key>PATH</key>
+		<string>/Users/francip/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin</string>
+	</dict>
+	<key>KeepAlive</key>
+	<true/>
+	<key>Label</key>
+	<string>ai.kortexa.porch</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/Users/francip/src/openhome-porch/launchd/kortexa-porch.sh</string>
+	</array>
+	<key>RunAtLoad</key>
+	<true/>
+	<key>StandardErrorPath</key>
+	<string>/Users/francip/Library/Logs/porch.log</string>
+	<key>StandardOutPath</key>
+	<string>/Users/francip/Library/Logs/porch.log</string>
+	<key>WorkingDirectory</key>
+	<string>/Users/francip/src/openhome-porch</string>
+</dict>
+</plist>

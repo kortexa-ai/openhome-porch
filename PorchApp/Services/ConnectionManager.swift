@@ -209,6 +209,22 @@ class ConnectionManager: ObservableObject {
         }
 
         guard !command.isEmpty else { return }
+
+        // Forward to Window if prefixed with "window:"
+        if command.hasPrefix("window:") {
+            let jsonStr = String(command.dropFirst("window:".count))
+            NSLog("[Relay] → Window: \(jsonStr)")
+            if let data = jsonStr.data(using: .utf8),
+               let msg = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                WindowServer.shared.send(msg)
+            } else {
+                // Plain text display
+                WindowServer.shared.sendDisplay(jsonStr)
+            }
+            sendToRelay(["type": "response", "data": ["ok": true, "stdout": "forwarded to window"]])
+            return
+        }
+
         NSLog("[Relay] Executing: \(command)")
 
         // Run command in background

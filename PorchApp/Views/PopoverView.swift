@@ -4,6 +4,7 @@ struct PopoverView: View {
     @EnvironmentObject var connectionManager: ConnectionManager
     @EnvironmentObject var settings: PorchSettings
     @EnvironmentObject var discovery: DeviceDiscovery
+    @ObservedObject var windowLauncher = WindowLauncher.shared
 
     @State private var showDeviceInfo = false
 
@@ -52,6 +53,21 @@ struct PopoverView: View {
             Text("Porch")
                 .font(.system(size: 13, weight: .semibold))
             Spacer()
+            // Window toggle
+            IconToggle(
+                icon: "tv",
+                isOn: windowLauncher.isRunning,
+                onColor: .blue,
+                offColor: .gray.opacity(0.4),
+                tooltip: windowLauncher.isRunning ? "Close Window" : "Open Window"
+            ) {
+                if windowLauncher.isRunning {
+                    windowLauncher.stop()
+                } else {
+                    windowLauncher.launch()
+                }
+            }
+            // Settings
             Button(action: onSettings) {
                 Image(systemName: "gear")
                     .font(.system(size: 12))
