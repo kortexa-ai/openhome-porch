@@ -53,17 +53,14 @@ class WindowLauncher: ObservableObject {
     }
 
     func stop() {
-        server.sendQuit()
-
-        // Give it a moment to close gracefully, then force kill
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
-            if self?.process?.isRunning == true {
-                self?.process?.terminate()
-            }
-            self?.process = nil
-            self?.isRunning = false
-            self?.server.stop()
+        // Send quit via WebSocket (bun process calls process.exit(0))
+        // Falls back to SIGTERM if WebSocket isn't connected
+        if server.windowConnected {
+            server.sendQuit()
+        } else {
+            process?.terminate()
         }
+        // The terminationHandler will clean up when the process actually exits
     }
 
     private func findWindowDir() -> String? {

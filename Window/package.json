@@ -10,14 +10,24 @@
 		"build:canary": "vite build && electrobun build --env=canary"
 	},
 	"dependencies": {
+		"@json-render/core": "^0.15.0",
+		"@json-render/react": "^0.15.0",
+		"@json-render/react-three-fiber": "^0.15.0",
+		"@json-render/shadcn": "^0.15.0",
+		"@react-three/drei": "^10.7.7",
+		"@react-three/fiber": "^9.5.0",
 		"electrobun": "1.16.0",
 		"react": "^18.3.1",
-		"react-dom": "^18.3.1"
+		"react-dom": "^18.3.1",
+		"tailwindcss-animate": "^1.0.7",
+		"three": "^0.183.2",
+		"zod": "^4.3.6"
 	},
 	"devDependencies": {
 		"@types/bun": "latest",
 		"@types/react": "^18.3.12",
 		"@types/react-dom": "^18.3.1",
+		"@types/three": "^0.183.1",
 		"@vitejs/plugin-react": "^4.3.4",
 		"autoprefixer": "^10.4.20",
 		"concurrently": "^9.1.0",

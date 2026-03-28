@@ -1,3 +1,41 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* shadcn/ui CSS variables — dark theme matching Window's bg-gray-950 */
+@layer base {
+    :root {
+        --background: 220 14% 4%;
+        --foreground: 0 0% 98%;
+        --card: 220 14% 8%;
+        --card-foreground: 0 0% 98%;
+        --popover: 220 14% 8%;
+        --popover-foreground: 0 0% 98%;
+        --primary: 0 0% 98%;
+        --primary-foreground: 220 14% 4%;
+        --secondary: 215 14% 16%;
+        --secondary-foreground: 0 0% 98%;
+        --muted: 215 14% 16%;
+        --muted-foreground: 240 5% 65%;
+        --accent: 215 14% 16%;
+        --accent-foreground: 0 0% 98%;
+        --destructive: 0 63% 31%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 215 14% 18%;
+        --input: 215 14% 18%;
+        --ring: 0 0% 83%;
+        --radius: 0.5rem;
+        --success: 142 76% 36%;
+        --success-foreground: 0 0% 98%;
+        --warning: 48 96% 53%;
+        --warning-foreground: 220 14% 4%;
+        --info: 217 91% 60%;
+        --info-foreground: 0 0% 98%;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+}

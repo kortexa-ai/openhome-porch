@@ -210,6 +210,20 @@ class ConnectionManager: ObservableObject {
 
         guard !command.isEmpty else { return }
 
+        // Window management commands
+        if command == "window:open" {
+            NSLog("[Relay] Opening Window")
+            WindowLauncher.shared.launch()
+            sendToRelay(["type": "response", "data": ["ok": true, "stdout": "window opened"]])
+            return
+        }
+        if command == "window:close" {
+            NSLog("[Relay] Closing Window")
+            WindowLauncher.shared.stop()
+            sendToRelay(["type": "response", "data": ["ok": true, "stdout": "window closed"]])
+            return
+        }
+
         // Forward to Window if prefixed with "window:"
         if command.hasPrefix("window:") {
             let jsonStr = String(command.dropFirst("window:".count))
