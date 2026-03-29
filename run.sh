@@ -1,3 +1,11 @@
 #!/bin/bash
 set -e
-swift run
+cd "$(dirname "$0")"
+
+if [ "$1" = "--dev" ]; then
+    ./build.sh --debug
+else
+    ./build.sh
+fi
+
+exec Porch.app/Contents/MacOS/Porch

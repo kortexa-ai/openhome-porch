@@ -8,7 +8,7 @@
 		<string>/Users/francip/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin</string>
 	</dict>
 	<key>KeepAlive</key>
-	<false/>
+	<true/>
 	<key>Label</key>
 	<string>ai.kortexa.porch</string>
 	<key>ProgramArguments</key>
@@ -16,7 +16,7 @@
 		<string>/Users/francip/src/openhome-porch/launchd/kortexa-porch.sh</string>
 	</array>
 	<key>RunAtLoad</key>
-	<false/>
+	<true/>
 	<key>StandardErrorPath</key>
 	<string>/Users/francip/Library/Logs/porch.log</string>
 	<key>StandardOutPath</key>
