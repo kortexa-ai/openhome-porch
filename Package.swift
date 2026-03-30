@@ -10,7 +10,7 @@ let package = Package(
         .executableTarget(
             name: "Porch",
             path: "PorchApp",
-            exclude: ["Info.plist"],
+            exclude: ["Info.plist", "PorchApp.entitlements"],
             // Embed Info.plist in binary so settings work even without an app bundle (swift run)
             linkerSettings: [
                 .unsafeFlags([

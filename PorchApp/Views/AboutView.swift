@@ -25,9 +25,13 @@ struct AboutView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
 
-            Text("by kortexa.ai")
+            Link("by kortexa.ai", destination: URL(string: "https://kortexa.ai")!)
                 .font(.caption)
-                .foregroundStyle(.tertiary)
+                .foregroundColor(.blue)
+                .underline()
+                .onHover { hovering in
+                    if hovering { NSCursor.pointingHand.push() } else { NSCursor.pop() }
+                }
 
             Spacer().frame(height: 4)
 

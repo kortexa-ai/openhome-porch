@@ -117,6 +117,12 @@ struct PopoverView: View {
 
             Spacer()
 
+            // Connection status bolt (indicator)
+            Image(systemName: "bolt.fill")
+                .font(.system(size: 9))
+                .frame(width: 16, height: 20)
+                .foregroundColor(connectionManager.state == .connected ? .yellow : .gray.opacity(0.4))
+
             // Auto-reconnect toggle
             IconToggle(
                 icon: "arrow.clockwise",
@@ -144,11 +150,6 @@ struct PopoverView: View {
                     connectionManager.connect()
                 }
             }
-
-            // Connection status bolt (indicator, not a button)
-            Image(systemName: "bolt.fill")
-                .font(.system(size: 12))
-                .foregroundColor(connectionManager.state == .connected ? .yellow : .gray.opacity(0.4))
         }
     }
 
@@ -218,11 +219,11 @@ struct IconToggle: View {
     var body: some View {
         Button(action: action) {
             Image(systemName: icon)
-                .font(.system(size: 12))
+                .font(.system(size: 9))
                 .foregroundColor(isOn ? onColor : offColor)
-                .frame(width: 22, height: 22)
+                .frame(width: 16, height: 20)
                 .background(
-                    RoundedRectangle(cornerRadius: 4)
+                    RoundedRectangle(cornerRadius: 3)
                         .fill(hovering ? Color.primary.opacity(0.08) : Color.clear)
                 )
         }
