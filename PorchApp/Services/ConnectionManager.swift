@@ -71,24 +71,15 @@ class ConnectionManager: ObservableObject {
 
     private func performConnect() {
         setState(.connecting)
-        connectRelay(secure: false)
 
-        // Also connect to device socket if discovered
-        if let ip = discovery.deviceIP {
-            connectDevice(host: ip)
-        }
-    }
-
-    private func connectRelay(secure: Bool) {
-        let scheme = secure ? "wss" : "ws"
-        let relayURL = "\(scheme)://app.openhome.com:8769/?api_key=\(settings.apiKey)&client_id=porch&role=agent"
+        let relayURL = "wss://app.openhome.com/ws/local_link/?api_key=\(settings.apiKey)&client_id=porch&role=agent"
         guard let url = URL(string: relayURL) else {
             NSLog("[Connection] Bad relay URL")
             setState(.disconnected)
             return
         }
 
-        NSLog("[Connection] Connecting to relay (\(scheme))...")
+        NSLog("[Connection] Connecting to relay...")
         let config = URLSessionConfiguration.default
         config.timeoutIntervalForRequest = 10
         relaySession = URLSession(configuration: config)
@@ -97,23 +88,19 @@ class ConnectionManager: ObservableObject {
         task.resume()
         receiveRelayMessage()
 
-        // Timeout — if ws:// fails, try wss://
+        // Also connect to device socket if discovered
+        if let ip = discovery.deviceIP {
+            connectDevice(host: ip)
+        }
+
+        // Timeout
         Task {
             try? await Task.sleep(for: .seconds(5))
             if state == .connecting {
-                if !secure {
-                    NSLog("[Connection] ws:// timed out, trying wss://...")
-                    relayTask?.cancel(with: .goingAway, reason: nil)
-                    relayTask = nil
-                    relaySession?.invalidateAndCancel()
-                    relaySession = nil
-                    connectRelay(secure: true)
-                } else {
-                    NSLog("[Connection] Relay handshake timeout")
-                    closeAll()
-                    setState(.disconnected)
-                    scheduleReconnectIfNeeded()
-                }
+                NSLog("[Connection] Relay handshake timeout")
+                closeAll()
+                setState(.disconnected)
+                scheduleReconnectIfNeeded()
             }
         }
     }

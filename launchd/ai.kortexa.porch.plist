@@ -8,7 +8,7 @@
 		<string>/Users/francip/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin</string>
 	</dict>
 	<key>KeepAlive</key>
-	<true/>
+	<false/>
 	<key>Label</key>
 	<string>ai.kortexa.porch</string>
 	<key>ProgramArguments</key>

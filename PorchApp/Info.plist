@@ -22,16 +22,6 @@
     <dict>
         <key>NSAllowsLocalNetworking</key>
         <true/>
-        <key>NSExceptionDomains</key>
-        <dict>
-            <key>app.openhome.com</key>
-            <dict>
-                <key>NSExceptionAllowsInsecureHTTPLoads</key>
-                <true/>
-                <key>NSIncludesSubdomains</key>
-                <false/>
-            </dict>
-        </dict>
     </dict>
     <key>CFBundleIconFile</key>
     <string>AppIcon</string>

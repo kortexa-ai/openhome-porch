@@ -92,7 +92,7 @@ style messages over the local WebSocket for service management.
 Extracted from the official `LocalLink.app` (PyInstaller binary):
 
 ```
-URL: ws://app.openhome.com:8769/?api_key={API_KEY}&client_id={ID}&role=agent
+URL: wss://app.openhome.com/ws/local_link//?api_key={API_KEY}&client_id={ID}&role=agent
 ```
 
 Default values from LocalLink.app:

@@ -19,7 +19,7 @@ OpenHome Device
                        │
                   exec_local_command()
                        │
-                  ws://app.openhome.com:8769 (LocalLink relay)
+                  wss://app.openhome.com/ws/local_link/ (LocalLink relay)
                        │
                   Porch (receives commands, executes or forwards)
                        │
@@ -475,7 +475,7 @@ async def _send_to_window(self, msg):
 | Port | Host | Protocol | Purpose |
 |------|------|----------|---------|
 | 3030 | openhome.local | WebSocket | Device config broadcast (no auth) |
-| 8769 | app.openhome.com | WebSocket | LocalLink relay (API key auth) |
+| 443 | app.openhome.com | WSS | LocalLink relay at /ws/local_link/ (API key auth) |
 | 9830 | localhost | WebSocket | Porch → Window communication |
 | 1883 | openhome.local | MQTT | Device hardware control (auth required) |
 
