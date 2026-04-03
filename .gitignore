@@ -36,6 +36,7 @@ Package.resolved
 
 # Build output
 Porch.app/
+Porch.app.zip
 
 # Environment
 .env
