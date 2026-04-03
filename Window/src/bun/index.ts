@@ -70,13 +70,17 @@ ApplicationMenu.setApplicationMenu([
 ]);
 
 // Connect to Porch WebSocket — single connection, bun-side only
+let hasConnected = false;
+let reconnectAttempts = 0;
+
 function connectToPorch() {
 	try {
 		const ws = new WebSocket(`ws://localhost:${PORCH_WS_PORT}`);
 
 		ws.onopen = () => {
 			console.log("[Window:bun] Connected to Porch");
-			// Send immediately and again after 1s (webview may not have mounted yet)
+			hasConnected = true;
+			reconnectAttempts = 0;
 			mainWindow.webview.rpc.send.porchStatus({ connected: true });
 			setTimeout(() => mainWindow.webview.rpc.send.porchStatus({ connected: true }), 1000);
 		};
@@ -91,7 +95,6 @@ function connectToPorch() {
 					process.exit(0);
 				}
 
-				// Forward everything else to webview via RPC
 				mainWindow.webview.rpc.send.porchMessage(msg);
 			} catch (e) {
 				console.error("[Window:bun] Parse error:", e);
@@ -101,25 +104,23 @@ function connectToPorch() {
 		ws.onclose = () => {
 			console.log("[Window:bun] Disconnected from Porch");
 			mainWindow.webview.rpc.send.porchStatus({ connected: false });
-			// If Porch closed the server, exit. Otherwise reconnect.
-			setTimeout(() => {
-				// Try to connect — if it fails, Porch is gone, so exit
-				const probe = new WebSocket(`ws://localhost:${PORCH_WS_PORT}`);
-				probe.onopen = () => {
-					probe.close();
-					connectToPorch();
-				};
-				probe.onerror = () => {
-					console.log("[Window:bun] Porch is gone, exiting");
-					process.exit(0);
-				};
-			}, 2000);
+			reconnectAttempts++;
+
+			// If we've never connected, keep retrying (startup race)
+			// If we had a connection and lost it, try a few times then exit
+			if (!hasConnected || reconnectAttempts <= 3) {
+				const delay = hasConnected ? 2000 : 1000;
+				setTimeout(connectToPorch, delay);
+			} else {
+				console.log("[Window:bun] Porch is gone, exiting");
+				process.exit(0);
+			}
 		};
 
 		ws.onerror = () => ws.close();
 	} catch (e) {
 		console.error("[Window:bun] Connection error:", e);
-		setTimeout(connectToPorch, 3000);
+		setTimeout(connectToPorch, 2000);
 	}
 }
 connectToPorch();

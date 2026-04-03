@@ -20,14 +20,31 @@ class WindowLauncher: ObservableObject {
 
         server.start()
 
-        // Try prod mode first (embedded Window.app), then dev mode
-        if let appPath = findEmbeddedWindowApp() {
-            launchProd(appPath: appPath)
-        } else if let srcDir = findWindowSourceDir() {
-            launchDev(sourceDir: srcDir)
-        } else {
-            NSLog("[WindowLauncher] Could not find Window (neither embedded app nor source dir)")
-            server.stop()
+        Task {
+            // Wait for the server to be ready (up to 5 seconds)
+            // Use Task.sleep which properly yields the main actor
+            var ready = false
+            for _ in 0..<50 {
+                try? await Task.sleep(for: .milliseconds(100))
+                if server.isRunning { ready = true; break }
+            }
+
+            if !ready {
+                NSLog("[WindowLauncher] WindowServer failed to start in time")
+                server.stop()
+                return
+            }
+
+            NSLog("[WindowLauncher] WindowServer ready on port 9830")
+
+            if let appPath = findEmbeddedWindowApp() {
+                launchProd(appPath: appPath)
+            } else if let srcDir = findWindowSourceDir() {
+                launchDev(sourceDir: srcDir)
+            } else {
+                NSLog("[WindowLauncher] Could not find Window (neither embedded app nor source dir)")
+                server.stop()
+            }
         }
     }
 
@@ -37,7 +54,6 @@ class WindowLauncher: ObservableObject {
         } else {
             process?.terminate()
         }
-        // terminationHandler will clean up
     }
 
     // MARK: - Prod mode (embedded Window.app)
@@ -48,7 +64,9 @@ class WindowLauncher: ObservableObject {
             resourceURL.appendingPathComponent("Window.app").path,
             resourceURL.appendingPathComponent("Window-canary.app").path,
         ]
-        return candidates.first { FileManager.default.fileExists(atPath: $0 + "/Contents/MacOS/launcher") }
+        let found = candidates.first { FileManager.default.fileExists(atPath: $0 + "/Contents/MacOS/launcher") }
+        NSLog("[WindowLauncher] Embedded search: \(found ?? "not found") (resourceURL: \(resourceURL.path))")
+        return found
     }
 
     private func launchProd(appPath: String) {
@@ -90,7 +108,6 @@ class WindowLauncher: ObservableObject {
     }
 
     private func findBun() -> String? {
-        // Try which bun first
         let which = Process()
         let pipe = Pipe()
         which.executableURL = URL(fileURLWithPath: "/usr/bin/which")
@@ -105,7 +122,6 @@ class WindowLauncher: ObservableObject {
             if let path, !path.isEmpty { return path }
         }
 
-        // Fallback paths
         let home = FileManager.default.homeDirectoryForCurrentUser.path
         let fallbacks = [
             "\(home)/.bun/bin/bun",

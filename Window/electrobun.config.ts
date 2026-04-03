@@ -3,7 +3,7 @@ import type { ElectrobunConfig } from "electrobun";
 export default {
 	app: {
 		name: "Window",
-		identifier: "com.openhome.window",
+		identifier: "ai.kortexa.porch.window",
 		version: "0.1.0",
 	},
 	build: {

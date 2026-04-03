@@ -49,7 +49,7 @@ if [ "$SKIP_WINDOW" = false ] && [ -d Window ]; then
     (
         cd Window
         bun install --frozen-lockfile 2>/dev/null || bun install
-        bun run build:canary
+        bun run build
     )
 else
     if [ "$SKIP_WINDOW" = true ]; then
@@ -57,15 +57,61 @@ else
     fi
 fi
 
-# Embed Window if a built .app exists
-WINDOW_APP=$(find Window/build -name "Window*.app" -maxdepth 2 -type d 2>/dev/null | sort -r | head -1)
-if [ -n "$WINDOW_APP" ]; then
-    echo "Embedding $WINDOW_APP..."
-    cp -a "$WINDOW_APP" "${APP_BUNDLE}/Contents/Resources/$(basename "$WINDOW_APP")"
+# Embed Window — extract flat .app from stable tarball
+WINDOW_TAR=$(find Window/artifacts -name "*-Window*.app.tar.zst" 2>/dev/null | head -1)
+if [ -n "$WINDOW_TAR" ]; then
+    echo "Extracting Window from $WINDOW_TAR..."
+    EXTRACT_DIR=$(mktemp -d)
+    zstd -d -o "$EXTRACT_DIR/Window.tar" "$WINDOW_TAR"
+    tar xf "$EXTRACT_DIR/Window.tar" -C "${APP_BUNDLE}/Contents/Resources/"
+    rm -rf "$EXTRACT_DIR"
+    echo "Embedded Window.app"
 fi
 
-# Ad-hoc sign
-codesign --force --deep --sign - --entitlements PorchApp/PorchApp.entitlements "${APP_BUNDLE}"
+# Code sign
+if [ "$BUILD_MODE" = "debug" ]; then
+    echo "Ad-hoc signing (debug)..."
+    codesign --force --deep --sign - --entitlements PorchApp/PorchApp.entitlements "${APP_BUNDLE}"
+else
+    SIGN_ID="Developer ID Application: Franci Penov (C49792BN94)"
+    echo "Signing with: ${SIGN_ID}..."
+
+    # Sign embedded Window.app (inside-out: dylibs, then binaries, then the .app)
+    EMBEDDED_WINDOW=$(find "${APP_BUNDLE}/Contents/Resources" -name "Window*.app" -maxdepth 1 -type d 2>/dev/null | head -1)
+    if [ -n "$EMBEDDED_WINDOW" ]; then
+        echo "Signing embedded Window..."
+        # Sign dylibs first
+        find "$EMBEDDED_WINDOW" -name "*.dylib" | while read f; do
+            codesign --force --sign "${SIGN_ID}" --options runtime --timestamp "$f"
+        done
+        # Sign frameworks
+        find "$EMBEDDED_WINDOW" -name "*.framework" -type d | while read f; do
+            codesign --force --sign "${SIGN_ID}" --options runtime --timestamp "$f"
+        done
+        # Sign executables in MacOS/ (skip bun — it has its own valid signature)
+        find "$EMBEDDED_WINDOW/Contents/MacOS" -type f -perm +111 -not -name "bun" | while read f; do
+            codesign --force --sign "${SIGN_ID}" --options runtime --timestamp "$f"
+        done
+        # Sign the Window.app bundle itself
+        codesign --force --sign "${SIGN_ID}" --options runtime --timestamp "$EMBEDDED_WINDOW"
+    fi
+
+    # Sign the outer Porch app (NOT --deep, Window already signed)
+    codesign --force --sign "${SIGN_ID}" --entitlements PorchApp/PorchApp.entitlements --options runtime --timestamp "${APP_BUNDLE}"
+
+    echo "Notarizing..."
+    zip -r -q "${APP_BUNDLE}.zip" "${APP_BUNDLE}"
+    if xcrun notarytool submit "${APP_BUNDLE}.zip" --keychain-profile "notarytool" --wait; then
+        xcrun stapler staple "${APP_BUNDLE}"
+        echo "Notarization successful"
+    else
+        echo "WARNING: Notarization failed (may need 'xcrun notarytool store-credentials notarytool')"
+    fi
+    rm -f "${APP_BUNDLE}.zip"
+fi
+
+# Remove quarantine to prevent app translocation on first launch
+xattr -dr com.apple.quarantine "${APP_BUNDLE}" 2>/dev/null || true
 
 echo ""
 echo "Built: ${APP_BUNDLE}"
