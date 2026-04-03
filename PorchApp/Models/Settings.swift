@@ -7,6 +7,7 @@ class PorchSettings: ObservableObject {
 
     @Published var apiKey: String = ""
     @Published var autoReconnect: Bool = false
+    @Published var launchAtLogin: Bool = false
 
     /// Where the API key came from
     @Published private(set) var apiKeySource: ApiKeySource = .none
@@ -30,6 +31,7 @@ class PorchSettings: ObservableObject {
             let json = try JSONDecoder().decode(SettingsFile.self, from: data)
             apiKey = json.apiKey ?? ""
             autoReconnect = json.autoReconnect ?? false
+            launchAtLogin = json.launchAtLogin ?? false
             if !apiKey.isEmpty {
                 apiKeySource = .saved
             }
@@ -41,7 +43,7 @@ class PorchSettings: ObservableObject {
     func save() {
         do {
             try FileManager.default.createDirectory(at: configDir, withIntermediateDirectories: true)
-            let json = SettingsFile(apiKey: apiKey.isEmpty ? nil : apiKey, autoReconnect: autoReconnect)
+            let json = SettingsFile(apiKey: apiKey.isEmpty ? nil : apiKey, autoReconnect: autoReconnect, launchAtLogin: launchAtLogin)
             let data = try JSONEncoder().encode(json)
             try data.write(to: configFile, options: .atomic)
             if !apiKey.isEmpty {
@@ -72,4 +74,5 @@ class PorchSettings: ObservableObject {
 private struct SettingsFile: Codable {
     var apiKey: String?
     var autoReconnect: Bool?
+    var launchAtLogin: Bool?
 }

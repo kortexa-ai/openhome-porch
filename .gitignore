@@ -34,6 +34,9 @@ Package.resolved
 .idea/
 .vscode/
 
+# Build output
+Porch.app/
+
 # Environment
 .env
 .env.local
@@ -42,4 +45,5 @@ Package.resolved
 Window/node_modules/
 Window/build/
 Window/dist/
+Window/artifacts/
 Window/bun.lock

@@ -76,7 +76,9 @@ function connectToPorch() {
 
 		ws.onopen = () => {
 			console.log("[Window:bun] Connected to Porch");
+			// Send immediately and again after 1s (webview may not have mounted yet)
 			mainWindow.webview.rpc.send.porchStatus({ connected: true });
+			setTimeout(() => mainWindow.webview.rpc.send.porchStatus({ connected: true }), 1000);
 		};
 
 		ws.onmessage = (event) => {

@@ -3,6 +3,7 @@ import SwiftUI
 struct SettingsView: View {
     @ObservedObject var settings: PorchSettings
     @State private var editingKey: String = ""
+    @State private var launchAtLogin: Bool = false
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -21,6 +22,20 @@ struct SettingsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
+
+            Divider()
+
+            Toggle("Launch at Login", isOn: $launchAtLogin)
+                .font(.subheadline)
+                .onChange(of: launchAtLogin) { _, newValue in
+                    settings.launchAtLogin = newValue
+                    settings.save()
+                    if newValue {
+                        LaunchDManager.shared.install()
+                    } else {
+                        LaunchDManager.shared.uninstall()
+                    }
+                }
 
             Spacer()
 
@@ -41,9 +56,10 @@ struct SettingsView: View {
             }
         }
         .padding(20)
-        .frame(width: 400, height: 180)
+        .frame(width: 400, height: 230)
         .onAppear {
             editingKey = settings.apiKey
+            launchAtLogin = settings.launchAtLogin
         }
     }
 }
