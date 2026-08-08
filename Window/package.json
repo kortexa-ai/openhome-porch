@@ -2,6 +2,7 @@
 	"name": "electrobun-react-tailwind-vite",
 	"version": "1.0.0",
 	"description": "Electrobun app with React, Tailwind CSS, and Vite HMR",
+	"type": "module",
 	"scripts": {
 		"start": "vite build && electrobun dev",
 		"dev": "electrobun dev --watch",
@@ -11,30 +12,31 @@
 		"build:canary": "vite build && electrobun build --env=canary"
 	},
 	"dependencies": {
-		"@json-render/core": "^0.15.0",
-		"@json-render/react": "^0.15.0",
-		"@json-render/react-three-fiber": "^0.15.0",
-		"@json-render/shadcn": "^0.15.0",
-		"@react-three/drei": "^10.7.7",
-		"@react-three/fiber": "^9.5.0",
-		"electrobun": "1.16.0",
-		"react": "^18.3.1",
-		"react-dom": "^18.3.1",
+		"@json-render/core": "^0.19.0",
+		"@json-render/react": "^0.19.0",
+		"@json-render/react-three-fiber": "^0.19.0",
+		"@json-render/shadcn": "^0.19.0",
+		"@react-three/drei": "^10.7.8",
+		"@react-three/fiber": "^9.7.0",
+		"electrobun": "1.18.1",
+		"react": "^19.2.8",
+		"react-dom": "^19.2.8",
 		"tailwindcss-animate": "^1.0.7",
-		"three": "^0.183.2",
-		"zod": "^4.3.6"
+		"three": "^0.185.1",
+		"zod": "^4.4.3"
 	},
 	"devDependencies": {
+		"@tailwindcss/postcss": "^4.3.3",
 		"@types/bun": "latest",
-		"@types/react": "^18.3.12",
-		"@types/react-dom": "^18.3.1",
-		"@types/three": "^0.183.1",
-		"@vitejs/plugin-react": "^4.3.4",
-		"autoprefixer": "^10.4.20",
-		"concurrently": "^9.1.0",
-		"postcss": "^8.4.49",
-		"tailwindcss": "^3.4.16",
-		"typescript": "^5.7.2",
-		"vite": "^6.0.3"
+		"@types/react": "^19.2.18",
+		"@types/react-dom": "^19.2.4",
+		"@types/three": "^0.185.4",
+		"@vitejs/plugin-react": "^6.0.5",
+		"autoprefixer": "^10.5.4",
+		"concurrently": "^10.0.4",
+		"postcss": "^8.5.26",
+		"tailwindcss": "^4.3.3",
+		"typescript": "^7.0.2",
+		"vite": "^8.2.1"
 	}
 }

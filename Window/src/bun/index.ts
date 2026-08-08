@@ -40,6 +40,10 @@ const mainWindow = new BrowserWindow({
 		y: 100,
 	},
 });
+const webviewRPC = mainWindow.webview.rpc!;
+if (!webviewRPC) {
+	throw new Error("Main window RPC was not initialized");
+}
 
 // Application menu
 ApplicationMenu.setApplicationMenu([
@@ -81,8 +85,8 @@ function connectToPorch() {
 			console.log("[Window:bun] Connected to Porch");
 			hasConnected = true;
 			reconnectAttempts = 0;
-			mainWindow.webview.rpc.send.porchStatus({ connected: true });
-			setTimeout(() => mainWindow.webview.rpc.send.porchStatus({ connected: true }), 1000);
+			webviewRPC.send.porchStatus({ connected: true });
+			setTimeout(() => webviewRPC.send.porchStatus({ connected: true }), 1000);
 		};
 
 		ws.onmessage = (event) => {
@@ -95,7 +99,7 @@ function connectToPorch() {
 					process.exit(0);
 				}
 
-				mainWindow.webview.rpc.send.porchMessage(msg);
+				webviewRPC.send.porchMessage(msg);
 			} catch (e) {
 				console.error("[Window:bun] Parse error:", e);
 			}
@@ -103,7 +107,7 @@ function connectToPorch() {
 
 		ws.onclose = () => {
 			console.log("[Window:bun] Disconnected from Porch");
-			mainWindow.webview.rpc.send.porchStatus({ connected: false });
+			webviewRPC.send.porchStatus({ connected: false });
 			reconnectAttempts++;
 
 			// If we've never connected, keep retrying (startup race)

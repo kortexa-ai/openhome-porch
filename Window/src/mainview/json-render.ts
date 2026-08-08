@@ -9,6 +9,7 @@ export const catalog = defineCatalog(schema, {
     components: {
         ...shadcnComponentDefinitions,
     },
+    actions: {},
 });
 
 // Registry: maps catalog to React implementations
