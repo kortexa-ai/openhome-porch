@@ -1,4 +1,4 @@
-import { BrowserWindow, BrowserView, ApplicationMenu, Updater } from "electrobun/bun";
+import { BrowserWindow, BrowserView, ApplicationMenu, Updater } from "electrobun/main";
 import type { WindowRPC } from "../shared/types";
 
 const DEV_SERVER_PORT = 5173;

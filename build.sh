@@ -4,6 +4,7 @@ cd "$(dirname "$0")"
 
 APP_NAME="Porch"
 APP_BUNDLE="${APP_NAME}.app"
+BUILD_MODE="release"
 SKIP_WINDOW=false
 
 # Parse args
@@ -25,7 +26,7 @@ else
 fi
 
 echo "Creating app bundle..."
-rm -rf "${APP_BUNDLE}"
+rm -rf "${APP_BUNDLE:?}"
 mkdir -p "${APP_BUNDLE}/Contents/MacOS"
 mkdir -p "${APP_BUNDLE}/Contents/Resources"
 
@@ -64,7 +65,7 @@ if [ -n "$WINDOW_TAR" ]; then
     EXTRACT_DIR=$(mktemp -d)
     zstd -d -o "$EXTRACT_DIR/Window.tar" "$WINDOW_TAR"
     tar xf "$EXTRACT_DIR/Window.tar" -C "${APP_BUNDLE}/Contents/Resources/"
-    rm -rf "$EXTRACT_DIR"
+    rm -rf "${EXTRACT_DIR:?}"
     echo "Embedded Window.app"
 fi
 
@@ -80,16 +81,13 @@ else
     EMBEDDED_WINDOW=$(find "${APP_BUNDLE}/Contents/Resources" -name "Window*.app" -maxdepth 1 -type d 2>/dev/null | head -1)
     if [ -n "$EMBEDDED_WINDOW" ]; then
         echo "Signing embedded Window..."
-        # Sign dylibs first
-        find "$EMBEDDED_WINDOW" -name "*.dylib" | while read f; do
-            codesign --force --sign "${SIGN_ID}" --options runtime --timestamp "$f"
+        # Sign every Mach-O payload, then its containing frameworks and app.
+        find "$EMBEDDED_WINDOW" -type f | while read f; do
+            if file "$f" | grep -q "Mach-O"; then
+                codesign --force --sign "${SIGN_ID}" --options runtime --timestamp "$f"
+            fi
         done
-        # Sign frameworks
         find "$EMBEDDED_WINDOW" -name "*.framework" -type d | while read f; do
-            codesign --force --sign "${SIGN_ID}" --options runtime --timestamp "$f"
-        done
-        # Sign executables in MacOS/ (skip bun — it has its own valid signature)
-        find "$EMBEDDED_WINDOW/Contents/MacOS" -type f -perm +111 -not -name "bun" | while read f; do
             codesign --force --sign "${SIGN_ID}" --options runtime --timestamp "$f"
         done
         # Sign the Window.app bundle itself
@@ -100,12 +98,17 @@ else
     codesign --force --sign "${SIGN_ID}" --entitlements PorchApp/PorchApp.entitlements --options runtime --timestamp "${APP_BUNDLE}"
 
     echo "Notarizing..."
-    zip -r -q "${APP_BUNDLE}.zip" "${APP_BUNDLE}"
-    if xcrun notarytool submit "${APP_BUNDLE}.zip" --keychain-profile "notarytool" --wait; then
+    ditto -c -k --keepParent "${APP_BUNDLE}" "${APP_BUNDLE}.zip"
+    NOTARY_RESULT=$(xcrun notarytool submit "${APP_BUNDLE}.zip" \
+        --keychain-profile "notarytool" --wait --output-format json)
+    echo "${NOTARY_RESULT}"
+    NOTARY_STATUS=$(echo "${NOTARY_RESULT}" | plutil -extract status raw -o - -)
+    if [ "${NOTARY_STATUS}" = "Accepted" ]; then
         xcrun stapler staple "${APP_BUNDLE}"
         echo "Notarization successful"
     else
-        echo "WARNING: Notarization failed (may need 'xcrun notarytool store-credentials notarytool')"
+        echo "Notarization failed with status: ${NOTARY_STATUS}" >&2
+        exit 1
     fi
     rm -f "${APP_BUNDLE}.zip"
 fi

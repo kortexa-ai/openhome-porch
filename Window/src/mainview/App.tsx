@@ -1,6 +1,7 @@
-import { useState, useEffect, Component, type ReactNode } from "react";
+import { useState, useEffect, Component, lazy, Suspense, type ReactNode } from "react";
 import "./rpc";
-import JsonRenderView from "./JsonRenderView";
+
+const JsonRenderView = lazy(() => import("./JsonRenderView"));
 
 type ViewMode = "idle" | "now-playing" | "display" | "render";
 
@@ -83,7 +84,9 @@ function App() {
             <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "1.5rem" }}>
                 {viewMode === "render" && renderSpec ? (
                     <ErrorBoundary>
-                        <JsonRenderView spec={renderSpec} />
+                        <Suspense fallback={null}>
+                            <JsonRenderView spec={renderSpec} />
+                        </Suspense>
                     </ErrorBoundary>
                 ) : viewMode === "now-playing" && nowPlaying ? (
                     <div style={{ textAlign: "center" }}>

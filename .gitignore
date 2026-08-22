@@ -47,4 +47,4 @@ Window/node_modules/
 Window/build/
 Window/dist/
 Window/artifacts/
-Window/bun.lock
+Window/.hutch/
